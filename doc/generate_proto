@@ -1,0 +1,1 @@
+protoc -I /home/creed/go/src/gomaprdbproject/ /home/creed/go/src/gomaprdbproject/proto/maprdb-server.proto --go_out=plugins=grpc:.

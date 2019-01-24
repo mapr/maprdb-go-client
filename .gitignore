@@ -1,0 +1,10 @@
+.vscode
+debug
+.idea
+*.iml
+*.ipr
+*.iws
+*.sublime-project
+*.sublime-workspace
+perf
+vendor/*
