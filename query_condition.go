@@ -40,8 +40,8 @@ type conditionQueryOperation int
 const (
 	EXISTS conditionQueryOperation = iota
 	NOT_EXISTS
-	NOT_IN
 	IN
+	NOT_IN
 	TYPE_OF
 	NOT_TYPE_OF
 	MATCHES
