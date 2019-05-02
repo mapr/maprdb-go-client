@@ -56,7 +56,7 @@ func (queryResult *QueryResult) parseResponseStream(responseStream MapRDbServer_
 			return nil, err
 		}
 		if element.GetError().ErrCode != ErrorCode_NO_ERROR {
-			return nil, fmt.Errorf("unexpected error code recieved from server.\n %v.\n %v.\n %v\n",
+			return nil, fmt.Errorf("unexpected error code received from server.\n %v.\n %v.\n %v\n",
 				element.GetError().ErrCode,
 				element.GetError().ErrorMessage,
 				element.GetError().JavaStackTrace)

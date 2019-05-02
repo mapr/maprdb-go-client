@@ -885,7 +885,7 @@ func checkIsDocumentExists(rpcError *RpcError) (bool, error) {
 	case ErrorCode_DOCUMENT_NOT_FOUND:
 		return false, nil
 	default:
-		return false, errors.New(fmt.Sprintf("unexpected error code recieved from server\n error: %v\n"+
+		return false, errors.New(fmt.Sprintf("unexpected error code received from server\n error: %v\n"+
 			" error message : %v\n java stacktrace: %v\n",
 			rpcError.ErrCode.String(),
 			rpcError.ErrorMessage,
