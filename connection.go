@@ -263,12 +263,11 @@ func parseConnectionString(connectionString string) (
 	user := getValueOrDefault(m, "user", "")
 	password := getValueOrDefault(m, "password", "")
 	encodedMetadata = b64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%v:%v", user, password)))
-	ssl = false
-	if val, ok := m["ssl"]; ok {
-		ssl, err = strconv.ParseBool(val[0])
-		if err != nil {
-			return
-		}
+	sslDecoded := getValueOrDefault(m, "ssl", "false")
+
+	ssl, err = strconv.ParseBool(sslDecoded)
+	if err != nil {
+		return
 	}
 	sslCA = getValueOrDefault(m, "sslCA", "")
 	sslTargetNameOverride = getValueOrDefault(m, "sslTargetNameOverride", "")
@@ -285,7 +284,8 @@ func findHost(unparsedString string) string {
 // method fetches value from url.Values or returns default value
 func getValueOrDefault(content url.Values, key string, defaultValue string) string {
 	if val, ok := content[key]; ok {
-		return val[0]
+		decodedValue, _ := url.QueryUnescape(val[0])
+		return decodedValue
 	} else {
 		return defaultValue
 	}
