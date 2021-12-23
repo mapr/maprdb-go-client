@@ -4,7 +4,7 @@ package com.mapr.data.db;
 
 option java_multiple_files = true;
 option java_package = "com.mapr.data.db.proto";
-
+option go_package = "mapr/private-maprdb-go-client;private_maprdb_go_client";
 //=============================================//
 //      RPC calls exported from the service    //
 //=============================================//
