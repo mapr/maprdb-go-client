@@ -2,6 +2,7 @@ package private_maprdb_go_client
 
 import (
 	"context"
+	"crypto/tls"
 	b64 "encoding/base64"
 	"errors"
 	"fmt"
@@ -10,6 +11,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/metadata"
 	"net/url"
 	"strconv"
@@ -45,18 +47,24 @@ var defaultConnectionOpts = &ConnectionOptions{MaxAttempt: 9, WaitBetweenSeconds
 // Method creates channel for secure or insecure connection according to input parameters in connection string.
 func createChannel(encodedUMD *string, connectionUrl *string,
 	ssl *bool,
+	sslValidate *bool,
 	sslCA *string,
 	sslTargetNameOverride *string,
 	conOpts *ConnectionOptions) (*Connection, error) {
 	var opts []grpc.DialOption
-	if *ssl {
+	if !*ssl {
+		opts = append(opts, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	} else if *sslValidate {
 		transportCredentials, err := credentials.NewClientTLSFromFile(*sslCA, *sslTargetNameOverride)
 		if err != nil {
 			return nil, err
 		}
 		opts = append(opts, grpc.WithTransportCredentials(transportCredentials))
 	} else {
-		opts = append(opts, grpc.WithInsecure())
+		var tlsConf tls.Config
+		tlsConf.InsecureSkipVerify = true
+		var creds = credentials.NewTLS(&tlsConf)
+		opts = append(opts, grpc.WithTransportCredentials(creds))
 	}
 	conn := &Connection{umd: userMetadata{*encodedUMD, ""}}
 	if conOpts == nil || conOpts.MaxAttempt < 1 || conOpts.WaitBetweenSeconds < 1 || conOpts.CallTimeoutSeconds < 1 {
@@ -246,6 +254,7 @@ func parseConnectionString(connectionString string) (
 	auth string,
 	encodedMetadata string,
 	ssl bool,
+	sslValidate bool,
 	sslCA string,
 	sslTargetNameOverride string,
 	err error) {
@@ -257,20 +266,27 @@ func parseConnectionString(connectionString string) (
 			return
 		}
 	}
-	m, _ := url.ParseQuery(u.RawQuery)
+	mapValues := parseQuery(u.RawQuery)
 	connectionUrl = findHost(fmt.Sprintf("%v:%v", u.Scheme, u.Opaque))
-	auth = getValueOrDefault(m, "auth", "basic")
-	user := getValueOrDefault(m, "user", "")
-	password := getValueOrDefault(m, "password", "")
+	auth = getValueOrDefault(mapValues, "auth", "basic")
+	user := getValueOrDefault(mapValues, "user", "")
+	password := getValueOrDefault(mapValues, "password", "")
 	encodedMetadata = b64.StdEncoding.EncodeToString([]byte(fmt.Sprintf("%v:%v", user, password)))
-	sslDecoded := getValueOrDefault(m, "ssl", "false")
+	sslDecoded := getValueOrDefault(mapValues, "ssl", "false")
 
 	ssl, err = strconv.ParseBool(sslDecoded)
 	if err != nil {
 		return
 	}
-	sslCA = getValueOrDefault(m, "sslCA", "")
-	sslTargetNameOverride = getValueOrDefault(m, "sslTargetNameOverride", "")
+
+	sslValidateDecoded := getValueOrDefault(mapValues, "sslValidate", "true")
+	sslValidate, err = strconv.ParseBool(sslValidateDecoded)
+	if err != nil {
+		return
+	}
+
+	sslCA = getValueOrDefault(mapValues, "sslCA", "")
+	sslTargetNameOverride = getValueOrDefault(mapValues, "sslTargetNameOverride", "")
 	//TODO add value validation before return
 	return
 }
@@ -279,6 +295,19 @@ func parseConnectionString(connectionString string) (
 func findHost(unparsedString string) string {
 	parsedString := strings.Split(unparsedString, "@")
 	return parsedString[len(parsedString)-1]
+}
+
+func parseQuery(unparsedString string) url.Values {
+	items := strings.Split(unparsedString, ";")
+
+	// create and fill the map
+	valuesMap := make(url.Values)
+	for _, item := range items {
+		value := strings.Split(item, "=")
+		valuesMap[value[0]] = append(valuesMap[value[0]], value[1])
+	}
+
+	return valuesMap
 }
 
 // method fetches value from url.Values or returns default value
@@ -302,7 +331,7 @@ func MakeConnectionWithRetryOptions(
 	connectionOptions *ConnectionOptions,
 ) (*Connection, error) {
 	connectionUrl, auth, encodedMetadata,
-		ssl, sslCA, sslTargetNameOverride, err := parseConnectionString(connectionString)
+		ssl, sslValidate, sslCA, sslTargetNameOverride, err := parseConnectionString(connectionString)
 	if err != nil {
 		return nil, err
 	}
@@ -313,6 +342,7 @@ func MakeConnectionWithRetryOptions(
 		&encodedMetadata,
 		&connectionUrl,
 		&ssl,
+		&sslValidate,
 		&sslCA,
 		&sslTargetNameOverride,
 		connectionOptions)
