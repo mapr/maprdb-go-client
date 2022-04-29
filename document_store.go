@@ -24,7 +24,7 @@ type FindOptions struct {
 // This operation is successful only when the document with the given id doesn't exist.
 // If "_id" already existed in the document, then an error will be thrown.
 func (documentStore *DocumentStore) InsertDocument(doc *Document) error {
-	return documentStore.executeInsertOrReplace(InsertMode_INSERT, doc, nil, nil)
+	return documentStore.InsertDocumentWithContext(doc, nil)
 }
 
 // InsertDocumentWithContext method inserts Document into the store in MapR-DB.
@@ -32,7 +32,8 @@ func (documentStore *DocumentStore) InsertDocument(doc *Document) error {
 // This operation is successful only when the document with the given id doesn't exist.
 // If "_id" already existed in the document, then an error will be thrown.
 func (documentStore *DocumentStore) InsertDocumentWithContext(doc *Document, ctx context.Context) error {
-	return documentStore.executeInsertOrReplace(InsertMode_INSERT, doc, nil, ctx)
+	_, err := documentStore.executeInsertOrReplace(InsertMode_INSERT, doc, nil, ctx)
+	return err
 }
 
 // InsertDocumentWithIdString method changes the Document id if exists or add new id field
@@ -40,11 +41,7 @@ func (documentStore *DocumentStore) InsertDocumentWithContext(doc *Document, ctx
 // This operation is successful only when the document with the given id doesn't exist.
 // If "_id" already existed in the document, then an error will be thrown.
 func (documentStore *DocumentStore) InsertDocumentWithIdString(doc *Document, id string) error {
-	err := doc.SetIdString(id)
-	if err != nil {
-		return err
-	}
-	return documentStore.executeInsertOrReplace(InsertMode_INSERT, doc, nil, nil)
+	return documentStore.InsertDocumentWithIdStringContext(doc, id, nil)
 }
 
 // InsertDocumentWithIdStringContext method changes the Document id if exists or add new id field
@@ -61,7 +58,8 @@ func (documentStore *DocumentStore) InsertDocumentWithIdStringContext(
 	if err != nil {
 		return err
 	}
-	return documentStore.executeInsertOrReplace(InsertMode_INSERT, doc, nil, ctx)
+	_, err = documentStore.executeInsertOrReplace(InsertMode_INSERT, doc, nil, ctx)
+	return err
 }
 
 // InsertDocumentWithIdBinary method changes the Document id if exists or add new id field
@@ -69,11 +67,7 @@ func (documentStore *DocumentStore) InsertDocumentWithIdStringContext(
 // This operation is successful only when the document with the given id doesn't exist.
 // If "_id" already existed in the document, then an error will be thrown.
 func (documentStore *DocumentStore) InsertDocumentWithIdBinary(doc *Document, id []byte) error {
-	err := doc.SetIdBinary(id)
-	if err != nil {
-		return err
-	}
-	return documentStore.executeInsertOrReplace(InsertMode_INSERT, doc, nil, nil)
+	return documentStore.InsertDocumentWithIdBinaryContext(doc, id, nil)
 }
 
 // InsertDocumentWithIdBinaryContext method changes the Document id if exists or add new id field
@@ -90,18 +84,21 @@ func (documentStore *DocumentStore) InsertDocumentWithIdBinaryContext(
 	if err != nil {
 		return err
 	}
-	return documentStore.executeInsertOrReplace(InsertMode_INSERT, doc, nil, ctx)
+	_, err = documentStore.executeInsertOrReplace(InsertMode_INSERT, doc, nil, ctx)
+	return err
 }
 
 // InsertOrReplaceDocument method inserts or replaces the Document into the store in MapR-DB.
 func (documentStore *DocumentStore) InsertOrReplaceDocument(doc *Document) error {
-	return documentStore.executeInsertOrReplace(InsertMode_INSERT_OR_REPLACE, doc, nil, nil)
+	_, err := documentStore.executeInsertOrReplace(InsertMode_INSERT_OR_REPLACE, doc, nil, nil)
+	return err
 }
 
 // InsertOrReplaceDocumentWithContext method inserts or replaces the Document into the store in MapR-DB.
 // User defined context is required for this method.
 func (documentStore *DocumentStore) InsertOrReplaceDocumentWithContext(doc *Document, ctx context.Context) error {
-	return documentStore.executeInsertOrReplace(InsertMode_INSERT_OR_REPLACE, doc, nil, ctx)
+	_, err := documentStore.executeInsertOrReplace(InsertMode_INSERT_OR_REPLACE, doc, nil, ctx)
+	return err
 }
 
 // InsertOrReplaceDocumentWithIdString method changes the Document id if exists or add new id field and
@@ -111,7 +108,8 @@ func (documentStore *DocumentStore) InsertOrReplaceDocumentWithIdString(doc *Doc
 	if err != nil {
 		return err
 	}
-	return documentStore.executeInsertOrReplace(InsertMode_INSERT_OR_REPLACE, doc, nil, nil)
+	_, err = documentStore.executeInsertOrReplace(InsertMode_INSERT_OR_REPLACE, doc, nil, nil)
+	return err
 }
 
 // InsertOrReplaceDocumentWithIdStringContext method changes the Document id if exists or add new id field and
@@ -126,7 +124,8 @@ func (documentStore *DocumentStore) InsertOrReplaceDocumentWithIdStringContext(
 	if err != nil {
 		return err
 	}
-	return documentStore.executeInsertOrReplace(InsertMode_INSERT_OR_REPLACE, doc, nil, ctx)
+	_, err = documentStore.executeInsertOrReplace(InsertMode_INSERT_OR_REPLACE, doc, nil, ctx)
+	return err
 }
 
 // InsertOrReplaceDocumentWithIdBinary method changes the Document id if exists or add new id field and
@@ -136,7 +135,8 @@ func (documentStore *DocumentStore) InsertOrReplaceDocumentWithIdBinary(doc *Doc
 	if err != nil {
 		return err
 	}
-	return documentStore.executeInsertOrReplace(InsertMode_INSERT_OR_REPLACE, doc, nil, nil)
+	_, err = documentStore.executeInsertOrReplace(InsertMode_INSERT_OR_REPLACE, doc, nil, nil)
+	return err
 }
 
 // InsertOrReplaceDocumentWithIdBinaryContext method changes the Document id if exists or add new id field and
@@ -150,18 +150,20 @@ func (documentStore *DocumentStore) InsertOrReplaceDocumentWithIdBinaryContext(
 	if err != nil {
 		return err
 	}
-	return documentStore.executeInsertOrReplace(InsertMode_INSERT_OR_REPLACE, doc, nil, ctx)
+	_, err = documentStore.executeInsertOrReplace(InsertMode_INSERT_OR_REPLACE, doc, nil, ctx)
+	return err
 }
 
 // ReplaceDocument method replaces the Document into the store in MapR-DB.
 func (documentStore *DocumentStore) ReplaceDocument(doc *Document) error {
-	return documentStore.executeInsertOrReplace(InsertMode_REPLACE, doc, nil, nil)
+	return documentStore.ReplaceDocumentWithContext(doc, nil)
 }
 
 // ReplaceDocumentWithContext method replaces the Document into the store in MapR-DB.
 // User defined context is required for this method.
 func (documentStore *DocumentStore) ReplaceDocumentWithContext(doc *Document, ctx context.Context) error {
-	return documentStore.executeInsertOrReplace(InsertMode_REPLACE, doc, nil, ctx)
+	_, err := documentStore.executeInsertOrReplace(InsertMode_REPLACE, doc, nil, ctx)
+	return err
 }
 
 // ReplaceDocumentWithIdString method changes the Document id if exists or add new if field and
@@ -182,7 +184,8 @@ func (documentStore *DocumentStore) ReplaceDocumentWithIdStringContext(
 	if err != nil {
 		return err
 	}
-	return documentStore.executeInsertOrReplace(InsertMode_REPLACE, doc, nil, ctx)
+	_, err = documentStore.executeInsertOrReplace(InsertMode_REPLACE, doc, nil, ctx)
+	return err
 }
 
 // ReplaceDocumentWithIdBinary method changes the Document id if exists or add new if field and
@@ -203,7 +206,8 @@ func (documentStore *DocumentStore) ReplaceDocumentWithIdBinaryContext(
 	if err != nil {
 		return err
 	}
-	return documentStore.executeInsertOrReplace(InsertMode_REPLACE, doc, nil, ctx)
+	_, err = documentStore.executeInsertOrReplace(InsertMode_REPLACE, doc, nil, ctx)
+	return err
 }
 
 // InsertMap method inserts map[string]interface{} into the store in MapR-DB.
@@ -218,7 +222,8 @@ func (documentStore *DocumentStore) InsertMap(docMap map[string]interface{}) err
 // This operation is successful only when the document with the given id doesn't exist.
 // If "_id" already existed in the document, then an error will be thrown.
 func (documentStore *DocumentStore) InsertMapWithContext(docMap map[string]interface{}, ctx context.Context) error {
-	return documentStore.executeInsertOrReplace(InsertMode_INSERT, MakeDocumentFromMap(docMap), nil, ctx)
+	_, err := documentStore.executeInsertOrReplace(InsertMode_INSERT, MakeDocumentFromMap(docMap), nil, ctx)
+	return err
 }
 
 // InsertMapWithIdString method changes id if exists or add new if field
@@ -244,7 +249,8 @@ func (documentStore *DocumentStore) InsertMapWithIdStringContext(
 	if err != nil {
 		return err
 	}
-	return documentStore.executeInsertOrReplace(InsertMode_INSERT, doc, nil, ctx)
+	_, err = documentStore.executeInsertOrReplace(InsertMode_INSERT, doc, nil, ctx)
+	return err
 }
 
 // InsertMapWithIdBinary method changes id if exists or add new if field
@@ -270,7 +276,8 @@ func (documentStore *DocumentStore) InsertMapWithIdBinaryContext(
 	if err != nil {
 		return err
 	}
-	return documentStore.executeInsertOrReplace(InsertMode_INSERT, doc, nil, ctx)
+	_, err = documentStore.executeInsertOrReplace(InsertMode_INSERT, doc, nil, ctx)
+	return err
 }
 
 // InsertOrReplaceMap method inserts or replaces map[string]interface{} into the store in MapR-DB.
@@ -284,7 +291,8 @@ func (documentStore *DocumentStore) InsertOrReplaceMapWithContext(
 	docMap map[string]interface{},
 	ctx context.Context,
 ) error {
-	return documentStore.executeInsertOrReplace(InsertMode_INSERT_OR_REPLACE, MakeDocumentFromMap(docMap), nil, ctx)
+	_, err := documentStore.executeInsertOrReplace(InsertMode_INSERT_OR_REPLACE, MakeDocumentFromMap(docMap), nil, ctx)
+	return err
 }
 
 // InsertOrReplaceMapWithIdString method changes id if exists or add new if field and
@@ -306,7 +314,8 @@ func (documentStore *DocumentStore) InsertOrReplaceMapWithIdStringContext(
 	if err != nil {
 		return err
 	}
-	return documentStore.executeInsertOrReplace(InsertMode_INSERT_OR_REPLACE, doc, nil, ctx)
+	_, err = documentStore.executeInsertOrReplace(InsertMode_INSERT_OR_REPLACE, doc, nil, ctx)
+	return err
 }
 
 // InsertOrReplaceMapWithIdString method changes id if exists or add new if field and
@@ -328,7 +337,8 @@ func (documentStore *DocumentStore) InsertOrReplaceMapWithIdBinaryContext(
 	if err != nil {
 		return err
 	}
-	return documentStore.executeInsertOrReplace(InsertMode_INSERT_OR_REPLACE, doc, nil, ctx)
+	_, err = documentStore.executeInsertOrReplace(InsertMode_INSERT_OR_REPLACE, doc, nil, ctx)
+	return err
 }
 
 // ReplaceMap method replaces map[string]interface{} into the store in MapR-DB.
@@ -339,7 +349,12 @@ func (documentStore *DocumentStore) ReplaceMap(docMap map[string]interface{}) er
 // ReplaceMapWithContext method replaces map[string]interface{} into the store in MapR-DB.
 // User defined context is required for this method.
 func (documentStore *DocumentStore) ReplaceMapWithContext(docMap map[string]interface{}, ctx context.Context) error {
-	return documentStore.executeInsertOrReplace(InsertMode_REPLACE, MakeDocumentFromMap(docMap), nil, nil)
+	_, err := documentStore.executeInsertOrReplace(
+		InsertMode_REPLACE,
+		MakeDocumentFromMap(docMap),
+		nil,
+		nil)
+	return err
 }
 
 // ReplaceMapWithIdString method changes id id exists or add new id field and
@@ -361,7 +376,8 @@ func (documentStore *DocumentStore) ReplaceMapWithIdStringContext(
 	if err != nil {
 		return err
 	}
-	return documentStore.executeInsertOrReplace(InsertMode_REPLACE, doc, nil, ctx)
+	_, err = documentStore.executeInsertOrReplace(InsertMode_REPLACE, doc, nil, ctx)
+	return err
 }
 
 // ReplaceMapWithIdBinary method changes id id exists or add new id field and
@@ -401,7 +417,8 @@ func (documentStore *DocumentStore) InsertStringWithContext(docString string, ct
 	if err != nil {
 		return err
 	}
-	return documentStore.executeInsertOrReplace(InsertMode_INSERT, doc, nil, ctx)
+	_, err = documentStore.executeInsertOrReplace(InsertMode_INSERT, doc, nil, ctx)
+	return err
 }
 
 // InsertStringWithIdString method changes id if exists or add new id field and
@@ -434,7 +451,9 @@ func (documentStore *DocumentStore) InsertStringWithIdStringContext(
 	if err != nil {
 		return err
 	}
-	return documentStore.executeInsertOrReplace(InsertMode_INSERT, doc, nil, ctx)
+
+	_, err = documentStore.executeInsertOrReplace(InsertMode_INSERT, doc, nil, ctx)
+	return err
 }
 
 // InsertStringWithIdBinary method changes if if exists or add new id field and
@@ -467,7 +486,8 @@ func (documentStore *DocumentStore) InsertStringWithIdBinaryContext(
 	if err != nil {
 		return err
 	}
-	return documentStore.executeInsertOrReplace(InsertMode_INSERT, doc, nil, ctx)
+	_, err = documentStore.executeInsertOrReplace(InsertMode_INSERT, doc, nil, ctx)
+	return err
 }
 
 // InsertOrReplaceString method inserts or replaces string into the store in MapR-DB.
@@ -482,7 +502,8 @@ func (documentStore *DocumentStore) InsertOrReplaceStringWithContext(docString s
 	if err != nil {
 		return err
 	}
-	return documentStore.executeInsertOrReplace(InsertMode_INSERT_OR_REPLACE, doc, nil, ctx)
+	_, err = documentStore.executeInsertOrReplace(InsertMode_INSERT_OR_REPLACE, doc, nil, ctx)
+	return err
 }
 
 // InsertOrReplaceStringWithIdString method changes id if exists or and new id field and
@@ -597,7 +618,7 @@ func (documentStore *DocumentStore) CheckAndReplaceWithId(
 	id *BinaryOrStringId,
 	condition *MapOrStructCondition,
 	document *Document,
-) error {
+) (bool, error) {
 	return documentStore.CheckAndReplaceWithIdContext(id, condition, document, nil)
 }
 
@@ -612,16 +633,16 @@ func (documentStore *DocumentStore) CheckAndReplaceWithIdContext(
 	condition *MapOrStructCondition,
 	document *Document,
 	ctx context.Context,
-) error {
+) (bool, error) {
 	if id.IsBinary {
 		err := document.SetIdBinary(id.Binary)
 		if err != nil {
-			return err
+			return false, err
 		}
 	} else {
 		document.SetIdString(id.Str)
 	}
-	return documentStore.executeInsertOrReplace(InsertMode_REPLACE, document, condition, ctx)
+	return documentStore.CheckAndReplaceWithContext(condition, document, ctx)
 }
 
 // Atomically evaluates the condition on the given document and if the
@@ -632,8 +653,8 @@ func (documentStore *DocumentStore) CheckAndReplaceWithIdContext(
 func (documentStore *DocumentStore) CheckAndReplace(
 	condition *MapOrStructCondition,
 	document *Document,
-) error {
-	return documentStore.executeInsertOrReplace(InsertMode_REPLACE, document, condition, nil)
+) (bool, error) {
+	return documentStore.CheckAndReplaceWithContext(condition, document, nil)
 }
 
 // CheckAndReplaceWithContext method atomically evaluates the condition on the given document and if the
@@ -645,8 +666,15 @@ func (documentStore *DocumentStore) CheckAndReplaceWithContext(
 	condition *MapOrStructCondition,
 	document *Document,
 	ctx context.Context,
-) error {
-	return documentStore.executeInsertOrReplace(InsertMode_REPLACE, document, condition, ctx)
+) (bool, error) {
+	response, err := documentStore.executeInsertOrReplace(InsertMode_REPLACE, document, condition, ctx)
+	if err == nil {
+		return true, err
+	} else if response.Error.ErrCode == ErrorCode_DOCUMENT_NOT_FOUND {
+		return false, nil
+	} else {
+		return false, err
+	}
 }
 
 // Util method for all InsertOrReplace variants.
@@ -655,13 +683,13 @@ func (documentStore *DocumentStore) executeInsertOrReplace(
 	doc *Document,
 	condition *MapOrStructCondition,
 	userDefinedContext context.Context,
-) error {
+) (*InsertOrReplaceResponse, error) {
 	if !doc.HasId() {
-		return errors.New("the document must contain the _id field before sending")
+		return nil, errors.New("the document must contain the _id field before sending")
 	}
 	ser, err := json.Marshal(doc)
 	if err != nil {
-		return errors.New(fmt.Sprintf("couldn't marshal Document: %v\n", err))
+		return nil, errors.New(fmt.Sprintf("couldn't marshal Document: %v\n", err))
 	}
 	var ctx context.Context
 	if userDefinedContext != nil {
@@ -683,7 +711,7 @@ func (documentStore *DocumentStore) executeInsertOrReplace(
 	if condition != nil {
 		conditionString, err := getConditionString(condition)
 		if err != nil {
-			return err
+			return nil, err
 		}
 		request.Condition = &InsertOrReplaceRequest_JsonCondition{JsonCondition: conditionString}
 	}
@@ -693,16 +721,16 @@ func (documentStore *DocumentStore) executeInsertOrReplace(
 		grpc.Trailer(&trailer),
 	)
 	if err != nil {
-		return errors.New(fmt.Sprintf("Couldn't execute request: %v", err))
+		return response, errors.New(fmt.Sprintf("Couldn't execute request: %v", err))
 	}
 
 	err = checkResponseErrorCode(response.GetError())
 	if err != nil {
-		return err
+		return response, err
 	}
 
 	documentStore.connection.umd.UpdateToken(header, trailer)
-	return nil
+	return response, nil
 }
 
 // FindByIdString method executes gRPC FindById request with id field as string
