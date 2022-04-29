@@ -87,3 +87,65 @@ func TestMultipleAndOperations(t *testing.T) {
 		",{\"$eq\":{\"document\":true}}],\"$eq\":{\"drunk\":false}}",
 		string(jc))
 }
+
+func TestLikeOperations(t *testing.T) {
+	condition, err := MakeCondition(Like("age", "00"), Close())
+	if err != nil {
+		panic(err)
+	}
+	condition.Build()
+	jc, err := json.Marshal(condition.conditionContent)
+	if err != nil {
+		panic(err)
+	}
+	assert.Equal(t, "{\"$like\":{\"age\":\"00\"}}", string(jc))
+}
+
+func TestLikeWithEscapeCharacterOperations(t *testing.T) {
+	condition, err := MakeCondition(Like("age", "00|22", "|"), Close())
+	if err != nil {
+		panic(err)
+	}
+	condition.Build()
+	jc, err := json.Marshal(condition.conditionContent)
+	if err != nil {
+		panic(err)
+	}
+	assert.Equal(t, "{\"$like\":{\"age\":[\"00|22\",\"|\"]}}", string(jc))
+}
+
+func TestLikeOperationsInvalid(t *testing.T) {
+	_, err := MakeCondition(Like("age", "00", "00", "00"), Close())
+	assert.Error(t, err)
+}
+
+func TestNotLikeOperations(t *testing.T) {
+	condition, err := MakeCondition(NotLike("age", "00"), Close())
+	if err != nil {
+		panic(err)
+	}
+	condition.Build()
+	jc, err := json.Marshal(condition.conditionContent)
+	if err != nil {
+		panic(err)
+	}
+	assert.Equal(t, "{\"$notlike\":{\"age\":\"00\"}}", string(jc))
+}
+
+func TestNotLikeWithEscapeCharacterOperations(t *testing.T) {
+	condition, err := MakeCondition(NotLike("age", "00|22", "|"), Close())
+	if err != nil {
+		panic(err)
+	}
+	condition.Build()
+	jc, err := json.Marshal(condition.conditionContent)
+	if err != nil {
+		panic(err)
+	}
+	assert.Equal(t, "{\"$notlike\":{\"age\":[\"00|22\",\"|\"]}}", string(jc))
+}
+
+func TestNotLikeOperationsInvalid(t *testing.T) {
+	_, err := MakeCondition(NotLike("age", "00", "00", "00"), Close())
+	assert.Error(t, err)
+}

@@ -237,23 +237,15 @@ func NotMatches(fieldPath string, regex interface{}) ConditionOptions {
 // Adds a condition that tests if the value at the specified
 // fieldPath is a string and matches the specified SQL LIKE
 // expression optionally escaped with the specified escape character.
-func Like(fieldPath string, likeExpr interface{}) ConditionOptions {
-	return func(condition *Condition) (*Condition, error) {
-		condition.tokens.PushRight(map[string]interface{}{
-			conditionQueryOperations[LIKE]: map[string]interface{}{fieldPath: likeExpr}})
-		return condition, nil
-	}
+func Like(fieldPath string, likeExpr ...interface{}) ConditionOptions {
+	return likeNotLike(LIKE, fieldPath, likeExpr)
 }
 
 // Adds a condition that tests if the value at the specified
 // fieldPath is a string and does not match the specified SQL LIKE
 // expression optionally escaped with the specified escape character.
-func NotLike(fieldPath string, likeExpr interface{}) ConditionOptions {
-	return func(condition *Condition) (*Condition, error) {
-		condition.tokens.PushRight(map[string]interface{}{
-			conditionQueryOperations[NOT_LIKE]: map[string]interface{}{fieldPath: likeExpr}})
-		return condition, nil
-	}
+func NotLike(fieldPath string, likeExpr ...interface{}) ConditionOptions {
+	return likeNotLike(NOT_LIKE, fieldPath, likeExpr)
 }
 
 // Adds a condition that tests if the value at the specified
@@ -303,6 +295,27 @@ func AddConditionMap(conditionToAdd map[string]interface{}) ConditionOptions {
 func Is(fieldPath string, op Comparison, value interface{}) ConditionOptions {
 	return func(condition *Condition) (*Condition, error) {
 		condition.tokens.PushRight(map[string]interface{}{comparisonQueryOperations[op]: map[string]interface{}{fieldPath: value}})
+		return condition, nil
+	}
+}
+
+func likeNotLike(conditionOperation conditionQueryOperation, fieldPath string, likeExpr []interface{}) ConditionOptions {
+	var queryLikeExpression interface{}
+	switch len(likeExpr) {
+	case 1:
+		queryLikeExpression = likeExpr[0]
+	case 2:
+		queryLikeExpression = likeExpr
+	default:
+		return func(condition *Condition) (*Condition, error) {
+			return condition, errors.New(conditionQueryOperations[conditionOperation] + " operation should have " +
+				"maximum 3 arguments")
+		}
+	}
+
+	return func(condition *Condition) (*Condition, error) {
+		condition.tokens.PushRight(map[string]interface{}{
+			conditionQueryOperations[conditionOperation]: map[string]interface{}{fieldPath: queryLikeExpression}})
 		return condition, nil
 	}
 }
